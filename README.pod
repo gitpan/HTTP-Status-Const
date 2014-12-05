@@ -4,7 +4,7 @@ HTTP::Status::Const - interpolable HTTP status constants
 
 =head1 VERSION
 
-v0.2.1
+v0.2.2
 
 =head1 SYNOPSIS
 
@@ -16,7 +16,7 @@ v0.2.1
 
   ...
 
-  my %handlers => (
+  my %handlers = (
     $HTTP_OK      => sub { ... },
     $HTTP_CREATED => sub { ... },
     ...
@@ -30,6 +30,22 @@ function names.
 
 This means the constants can be used in contexts where you need
 interpolated variables, such as hash keys or in strings.
+
+=head2 Do I really need this?
+
+No. You can get interpolated constants already, with some ugly syntax:
+
+  my %handlers = (
+    HTTP_OK() => sub { ... },
+  );
+
+or
+
+  "Status code ${ \HTTP_OK }"
+
+So all this module gives you is some stylistic convenience, at the
+expense of additional dependencies (although ones that may be used
+by other modules).
 
 See the L<Pod::Readme> documentation for more details on the POD
 syntax that this module recognizes.
@@ -57,17 +73,44 @@ This distribution requires the following modules:
 
 =back
 
+This distribution recommends the following modules:
+
+=over 4
+
+=item * L<Package::Stash::XS>
+
+=back
+
 =head1 RECENT CHANGES
 
 =over 4
 
 =item * 
 
-Removed HTTP::Status::Constants from distribution.  (This version just exports everything that HTTP::Status::Const does, so it should have no effect on existing users.)
+Added support for exporting HTTP::Status's utility functions [Fixes GitHub #1].
+
+=item * 
+
+Switched to use Dist::Zilla for managing the distribution.
+
+=item * 
+
+Fixed typos in POD.
+
+=item * 
+
+Added note about why you don't need this module. Really, you don't need it.
 
 =back
 
 See the F<Changes> file for a longer revision history.
+
+=head1 EXPORTS
+
+By default, only the HTTP constants are exported.
+
+For convenience, the tags from L<HTTP::Status> are supported so that
+the C<:is> and C<status_message> functions are exported.
 
 =head1 SEE ALSO
 
@@ -76,6 +119,11 @@ L<HTTP::Status>
 =head1 AUTHOR
 
 Robert Rothenberg, C<< <rrwo at cpan.org> >>
+
+=head2 Acknowledgements
+
+Several people who pointed out that this module is unnecessary.
+(Yes, it's written to scratch an itch.)
 
 =head1 LICENSE AND COPYRIGHT
 

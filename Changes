@@ -1,5 +1,16 @@
 Revision history for HTTP::Status::Const
 
+v0.2.2    2014-12-05 17:43:31+00:00 Europe/London
+  - Added support for exporting HTTP::Status's utility functions
+    [Fixes GitHub #1].
+
+  - Switched to use Dist::Zilla for managing the distribution.
+
+  - Fixed typos in POD.
+
+  - Added note about why you don't need this module. Really, you don't
+    need it.
+
 v0.2.1  2014-11-10 23:16 GMT
    - Removed HTTP::Status::Constants from distribution.  (This version
      just exports everything that HTTP::Status::Const does, so it

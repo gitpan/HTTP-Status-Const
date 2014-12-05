@@ -5,11 +5,13 @@ use v5.10.0;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = version->declare('v0.2.1');
+use version 0.77; our $VERSION = version->declare('v0.2.2');
 
 use Const::Exporter;
-use HTTP::Status ();
+use HTTP::Status qw/ :is status_message /;
 use Package::Stash;
+
+# RECOMMEND PREREQ: Package::Stash::XS 0
 
 =head1 NAME
 
@@ -27,7 +29,7 @@ HTTP::Status::Const - interpolable HTTP status constants
 
   ...
 
-  my %handlers => (
+  my %handlers = (
     $HTTP_OK      => sub { ... },
     $HTTP_CREATED => sub { ... },
     ...
@@ -41,6 +43,22 @@ function names.
 
 This means the constants can be used in contexts where you need
 interpolated variables, such as hash keys or in strings.
+
+=head2 Do I really need this?
+
+No. You can get interpolated constants already, with some ugly syntax:
+
+  my %handlers = (
+    HTTP_OK() => sub { ... },
+  );
+
+or
+
+  "Status code ${ \HTTP_OK }"
+
+So all this module gives you is some stylistic convenience, at the
+expense of additional dependencies (although ones that may be used
+by other modules).
 
 =begin :readme
 
@@ -60,6 +78,13 @@ L<How to install CPAN modules|http://www.cpan.org/modules/INSTALL.html>.
 
 =end :readme
 
+=head1 EXPORTS
+
+By default, only the HTTP constants are exported.
+
+For convenience, the tags from L<HTTP::Status> are supported so that
+the C<:is> and C<status_message> functions are exported.
+
 =head1 SEE ALSO
 
 L<HTTP::Status>
@@ -67,6 +92,11 @@ L<HTTP::Status>
 =head1 AUTHOR
 
 Robert Rothenberg, C<< <rrwo at cpan.org> >>
+
+=head2 Acknowledgements
+
+Several people who pointed out that this module is unnecessary.
+(Yes, it's written to scratch an itch.)
 
 =head1 LICENSE AND COPYRIGHT
 
@@ -115,19 +145,26 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =cut
 
 BEGIN {
-  my $stash = Package::Stash->new('HTTP::Status');
-  my $syms  = $stash->get_all_symbols('CODE');
+    my $stash = Package::Stash->new('HTTP::Status');
+    my $syms  = $stash->get_all_symbols('CODE');
 
-  my @exports;
+    my %defaults;
 
-  foreach my $sym (keys %{$syms}) {
-    next unless $sym =~ /^HTTP_/;
-    my $val = &{$syms->{$sym}};
-    push @exports, '$' . $sym => $val;
-  }
+    foreach my $sym ( keys %{$syms} ) {
+        next unless $sym =~ /^HTTP_/;
+        my $val = &{ $syms->{$sym} };
+        $defaults{ '$' . $sym } = $val;
+    }
 
-  Const::Exporter->import( default => \@exports );
+    Const::Exporter->import(
+        constants => [%defaults],
+        default   => [ keys %defaults ],
+    );
+
+    $EXPORT_TAGS{is} = $HTTP::Status::EXPORT_TAGS{is};
+
+    push @EXPORT_OK, 'status_message', @{ $EXPORT_TAGS{is} };
+    push @{ $EXPORT_TAGS{all} }, 'status_message', @{ $EXPORT_TAGS{is} };
 }
-
 
 1;
