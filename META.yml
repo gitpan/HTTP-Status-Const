@@ -24,4 +24,4 @@ requires:
 resources:
   bugtracker: https://github.com/robrwo/HTTP-Status-Constants/issues
   repository: git://github.com/robrwo/HTTP-Status-Constants.git
-version: v0.2.2
+version: v0.2.3
